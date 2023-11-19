@@ -44,7 +44,11 @@ class Cell(str):
     ):
         if self.row:
             self.row[self.row_index - 1] = Cell(
-                value, self.tab, label=self.label, row_index=self.row_index, row=self.row
+                value,
+                self.tab,
+                label=self.label,
+                row_index=self.row_index,
+                row=self.row,
             )
 
         self.tab.update(

@@ -38,4 +38,6 @@ class Tab(Worksheet):
             **kwargs
         )[0][0]
 
-        return Cell(data, tab=self, label=cell_name[0], row_index=int(cell_name[1:]), row=None)
+        return Cell(
+            data, tab=self, label=cell_name[0], row_index=int(cell_name[1:]), row=None
+        )
