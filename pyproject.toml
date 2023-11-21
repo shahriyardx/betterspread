@@ -1,9 +1,15 @@
 [tool.poetry]
 name = "betterspread"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Md Shahriyar Alam <contact@shahriyar.dev>"]
 readme = "README.md"
+license = "MIT"
+
+[tool.poetry.urls]
+homepage = "https://github.com/shahriyardx/betterspread"
+repository = "https://github.com/shahriyardx/betterspread"
+"Bug Tracker" = "https://github.com/shahriyardx/betterspread/issues"
 
 [tool.poetry.dependencies]
 python = "^3.9"

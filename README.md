@@ -1,7 +1,8 @@
-# Better Spred
+# Better Spread
 A wrapper around gspread with cell and row level functionalities
 
 ## Sheet
+
 ```python
 from betterspread import Sheet, Connection
 
