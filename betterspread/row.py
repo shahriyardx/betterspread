@@ -16,7 +16,7 @@ class Row(list):
         self.tab = tab
         self.row_index = index
         self.items = self.convert_to_cell(items)
-        self.range = to_range("A", len(self.items) - 1)
+        self.range = to_range("A", len(self.items) - 1, index=self.row_index)
         super().__init__(self.items)
 
     def convert_to_cell(self, items):
@@ -36,7 +36,7 @@ class Row(list):
         super().__init__(new_items)
 
     def update(self, values: list):
-        self.range = to_range("A", len(values) - 1)
+        self.range = to_range("A", len(values) - 1, index=self.row_index)
         self.tab.update(self.range, [values])
         self.items = self.convert_to_cell(values)
         super().__init__(self.items)

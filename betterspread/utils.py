@@ -6,5 +6,5 @@ def next_char(start: str, count: int) -> str:
         return chr(next_code - 26)
 
 
-def to_range(start: str = "A", count: int = 0):
-    return f"{start}1:{next_char(start, count)}{count}"
+def to_range(start: str = "A", count: int = 0, index: int = 1):
+    return f"{start}{index}:{next_char(start, count)}{index}"
