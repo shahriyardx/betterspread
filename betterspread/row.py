@@ -35,9 +35,9 @@ class Row(list):
         )
         super().__init__(new_items)
 
-    def update(self, values: list):
+    def update(self, values: list, **kwargs):
         self.range = to_range("A", len(values) - 1, index=self.row_index)
-        self.tab.update(self.range, [values])
+        self.tab.update(self.range, [values], **kwargs)
         self.items = self.convert_to_cell(values)
         super().__init__(self.items)
 
