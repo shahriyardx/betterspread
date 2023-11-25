@@ -28,16 +28,13 @@ class Row(list):
         return converted
 
     def clear(self) -> None:
-        new_items = self.convert_to_cell([list(map(lambda _x: "", self.items))])
-        self.tab.update(
-            self.range,
-            new_items,
-        )
-        super().__init__(new_items)
+        self.tab.sheet.values_clear(self.range)
+        self.items = []
+        super().__init__([])
 
-    def update(self, values: list, **kwargs):
+    def update(self, values: list, *args, **kwargs):
         self.range = to_range("A", len(values) - 1, index=self.row_index)
-        self.tab.update(self.range, [values], **kwargs)
+        self.tab.update(self.range, [values], *args, **kwargs)
         self.items = self.convert_to_cell(values)
         super().__init__(self.items)
 
@@ -49,3 +46,8 @@ class Row(list):
         row = values[self.row_index - 1]
         self.items = self.convert_to_cell(row)
         super().__init__(self.items)
+
+    def append_cell(self, value, *args, **kwargs):
+        new_values = value if isinstance(value, list) else [value]
+        new_data = [*self.items, *new_values]
+        self.update(new_data, *args, **kwargs)

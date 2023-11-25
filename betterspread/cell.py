@@ -36,8 +36,7 @@ class Cell(str):
             self.row[self.row_index - 1] = Cell(
                 "", self.tab, label=self.label, row_index=self.row_index, row=self.row
             )
-
-        self.tab.update(f"{self.label}{self.row_index}", "")  # noqa
+        self.tab.sheet.values_clear(f"{self.label}{self.row_index}")
 
     def update(
         self, value: Any, input_format: str = "raw", render_format: str = "formatted"

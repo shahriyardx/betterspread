@@ -16,8 +16,12 @@ render_formats = {
 
 @dataclass
 class Tab(Worksheet):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, sheet, *args, **kwargs):
+        self.sheet = sheet
         super().__init__(*args, **kwargs)
+
+    def __repr__(self):
+        return f"<Tab title='{self.title}' id={self.id}>"
 
     def values(self, **kwargs) -> List[Row]:
         rows = self.get_values(**kwargs)
@@ -35,9 +39,12 @@ class Tab(Worksheet):
         data = self.get(
             cell_name,
             value_render_option=render_formats.get(render_option, "formatted"),
-            **kwargs
+            **kwargs,
         )[0][0]
 
         return Cell(
             data, tab=self, label=cell_name[0], row_index=int(cell_name[1:]), row=None
         )
+
+    def append(self, data: list):
+        self.append_row(data)
