@@ -1,7 +1,6 @@
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Union
 
-from gspread_formatting import format_cell_range
+from gspread_formatting import format_cell_range, CellFormat
 
 from .cell import Cell
 from .style import Style
@@ -38,8 +37,9 @@ class Row(list):
         self.items = self.convert_to_cell(values)
         super().__init__(self.items)
 
-    def style(self, obj: Style):
-        format_cell_range(self.tab, self.range, obj)
+    def style(self, obj: Union[Style, CellFormat]):
+        style = obj.raw if isinstance(obj, Style) else obj
+        format_cell_range(self.tab, self.range, style)
 
     def refetch(self):
         values = self.tab.values()
