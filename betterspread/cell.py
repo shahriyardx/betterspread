@@ -33,7 +33,7 @@ class Cell(str):
 
     def clear(self):
         if self.row:
-            self.row[self.row_index - 1] = Cell(
+            self.row[self.row.row_index - 1] = Cell(
                 "", self.tab, label=self.label, row_index=self.row_index, row=self.row
             )
         self.tab.sheet.values_clear(f"{self.label}{self.row_index}")
