@@ -43,7 +43,7 @@ class Tab(Worksheet):
         )[0][0]
 
         return Cell(
-            data, tab=self, label=cell_name[0], row_index=int(cell_name[1:]), row=None
+            data, tab=self, label=cell_name[0], row_index=int(cell_name[1:]), cell_index=0, row=None
         )
 
     def append(self, data: list):

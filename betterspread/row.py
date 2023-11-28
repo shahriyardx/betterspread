@@ -21,7 +21,7 @@ class Row(list):
     def convert_to_cell(self, items):
         def to_cell(item):
             i, value = item
-            return Cell(value, self.tab, next_char("A", i), self.row_index, self)
+            return Cell(value, self.tab, next_char("A", i), self.row_index, i, self)
 
         converted: List[Cell] = list(map(to_cell, enumerate(items)))
         return converted

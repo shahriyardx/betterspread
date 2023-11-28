@@ -23,17 +23,18 @@ render_formats = {
 
 
 class Cell(str):
-    def __new__(cls, value, tab: "Tab", label: str, row_index: int, row: "Row" = None):
+    def __new__(cls, value, tab: "Tab", label: str, row_index: int, cell_index: int = 0, row: "Row" = None):
         instance = super().__new__(cls, value)
         instance.tab = tab
         instance.label = label
         instance.row_index = row_index
+        instance.cell_index = cell_index
         instance.row = row
         return instance
 
     def clear(self):
         if self.row:
-            self.row[self.row.row_index - 1] = Cell(
+            self.row[self.cell_index] = Cell(
                 "", self.tab, label=self.label, row_index=self.row_index, row=self.row
             )
         self.tab.sheet.values_clear(f"{self.label}{self.row_index}")
@@ -42,7 +43,7 @@ class Cell(str):
         self, value: Any, input_format: str = "raw", render_format: str = "formatted"
     ):
         if self.row:
-            self.row[self.row_index - 1] = Cell(
+            self.row[self.cell_index] = Cell(
                 value,
                 self.tab,
                 label=self.label,
