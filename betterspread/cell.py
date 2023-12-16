@@ -78,3 +78,6 @@ class Cell(str):
         await run_in_executor(
             format_cell_range, self.tab, f"{self.label}{self.row_index}", style
         )
+
+    async def delete(self, shift: str = "left"):
+        await self.tab.del_cell(f"{self.label}{self.row_index}", shift=shift)

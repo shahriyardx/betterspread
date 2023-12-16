@@ -63,5 +63,39 @@ class Tab(Worksheet):
             values = await self.values()
             return values[-1]
 
-    def del_row(self, start: int, end: int = None):
-        self.delete_rows(start_index=start, end_index=end or start)
+    async def del_row(self, start: int, end: int = None):
+        await run_in_executor(
+            self.delete_rows, start_index=start, end_index=end or start
+        )
+
+    async def del_cell(self, start: str, end: str = None, shift: str = "up"):
+        [start_col_name, *start_row_indexs] = list(start)
+        if end:
+            [end_col_name, *end_row_indexs] = list(end)
+        else:
+            end_col_name = start_col_name
+            end_row_indexs = start_row_indexs
+
+        start_row_index = int("".join(start_row_indexs)) - 1
+        end_row_index = int("".join(end_row_indexs))
+
+        start_col_index = ord(start_col_name) - 65
+        end_col_index = ord(end_col_name) - 64
+
+        sheet_id = self._properties["sheetId"]
+        requests = [
+            {
+                "deleteRange": {
+                    "range": {
+                        "sheetId": sheet_id,
+                        "startRowIndex": start_row_index,
+                        "endRowIndex": end_row_index,
+                        "startColumnIndex": start_col_index,
+                        "endColumnIndex": end_col_index,
+                    },
+                    "shiftDimension": "COLUMNS" if shift == "left" else "ROWS",
+                }
+            }
+        ]
+
+        self.sheet.batch_update({"requests": requests})

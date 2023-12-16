@@ -52,3 +52,6 @@ class Row(list):
         new_values = value if isinstance(value, list) else [value]
         new_data = [*self.items, *new_values]
         await self.update(new_data, *args, **kwargs)
+
+    async def delete(self):
+        await self.tab.del_row(self.row_index)

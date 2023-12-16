@@ -10,6 +10,10 @@ def next_char(start: str, count: int) -> str:
         return chr(next_code - 26)
 
 
+def get_col_index(col_name: str):
+    print(ord(col_name))
+
+
 def to_range(start: str = "A", count: int = 0, index: int = 1):
     return f"{start}{index}:{next_char(start, count)}{index}"
 
