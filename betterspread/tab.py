@@ -62,3 +62,6 @@ class Tab(Worksheet):
         if get_row:
             values = await self.values()
             return values[-1]
+
+    def del_row(self, start: int, end: int = None):
+        self.delete_rows(start_index=start, end_index=end or start)
