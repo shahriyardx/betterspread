@@ -4,6 +4,7 @@ from gspread import Client, Spreadsheet
 
 from .connection import Connection
 from .tab import Tab
+from .utils import run_in_executor
 
 
 @dataclass
@@ -13,18 +14,26 @@ class Sheet(Spreadsheet):
     connection: Connection = None
     sheet: Spreadsheet = None
     _properties: dict = None
+    _open: bool = False
 
-    def __post_init__(self):
-        sheet = self.connection.client.open(self.sheet_name, folder_id=self.folder_id)
-        self.client: Client = sheet.client
-        self._properties: dict = sheet._properties  # noqa
+    async def open(self):
+        if not self._open:
+            sheet = await run_in_executor(
+                self.connection.client.open, self.sheet_name, folder_id=self.folder_id
+            )
+            self.client: Client = sheet.client
+            self._properties: dict = sheet._properties  # noqa
+            self._open = True
 
-    def get_tab(self, tab_name: str) -> Tab:
-        _tab = self.worksheet(tab_name)
+    async def get_tab(self, tab_name: str) -> Tab:
+        await self.open()
+        _tab = await run_in_executor(self.worksheet, tab_name)
         return Tab(spreadsheet=self, properties=_tab._properties, sheet=self)  # noqa
 
-    def tabs(self, exclude_hidden: bool = False):
-        sheets = self.worksheets(exclude_hidden=exclude_hidden)
+    async def tabs(self, exclude_hidden: bool = False):
+        await self.open()
+        sheets = await run_in_executor(self.worksheets, exclude_hidden=exclude_hidden)
+
         return [
             Tab(spreadsheet=self, properties=tab._properties, sheet=self)  # noqa
             for tab in sheets

@@ -4,6 +4,7 @@ from gspread.utils import ValueInputOption, ValueRenderOption
 from gspread_formatting import format_cell_range
 
 from .style import Style
+from .utils import run_in_executor
 
 if TYPE_CHECKING:
     from .row import Row
@@ -23,7 +24,15 @@ render_formats = {
 
 
 class Cell(str):
-    def __new__(cls, value, tab: "Tab", label: str, row_index: int, cell_index: int = 0, row: "Row" = None):
+    def __new__(
+        cls,
+        value,
+        tab: "Tab",
+        label: str,
+        row_index: int,
+        cell_index: int = 0,
+        row: "Row" = None,
+    ):
         instance = super().__new__(cls, value)
         instance.tab = tab
         instance.label = label
@@ -32,14 +41,16 @@ class Cell(str):
         instance.row = row
         return instance
 
-    def clear(self):
+    async def clear(self):
         if self.row:
             self.row[self.cell_index] = Cell(
                 "", self.tab, label=self.label, row_index=self.row_index, row=self.row
             )
-        self.tab.sheet.values_clear(f"{self.label}{self.row_index}")
+        await run_in_executor(
+            self.tab.sheet.values_clear, f"{self.label}{self.row_index}"
+        )
 
-    def update(
+    async def update(
         self, value: Any, input_format: str = "raw", render_format: str = "formatted"
     ):
         if self.row:
@@ -51,13 +62,19 @@ class Cell(str):
                 row=self.row,
             )
 
-        self.tab.update(
+        await run_in_executor(
+            self.tab.update,
             f"{self.label}{self.row_index}",
             value,
             value_input_option=input_formats.get(input_format, "raw"),
             response_value_render_option=render_formats.get(render_format, "formatted"),
         )
+        return Cell(
+            value, self.tab, self.label, self.row_index, self.cell_index, self.row
+        )
 
-    def style(self, obj: Style):
+    async def style(self, obj: Style):
         style = obj.raw if isinstance(obj, Style) else obj
-        format_cell_range(self.tab, f"{self.label}{self.row_index}", style)
+        await run_in_executor(
+            format_cell_range, self.tab, f"{self.label}{self.row_index}", style
+        )
