@@ -56,5 +56,9 @@ class Tab(Worksheet):
             row=None,
         )
 
-    async def append(self, data: list):
+    async def append(self, data: list, get_row: bool = False):
         await run_in_executor(self.append_row, data)
+
+        if get_row:
+            values = await self.values()
+            return values[-1]
