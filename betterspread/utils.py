@@ -1,21 +1,22 @@
 import asyncio
+import math
+import string
 from functools import partial
 
 
-def next_char(start: str, count: int) -> str:
-    next_code = ord(start) + count
-    if next_code <= ord("Z"):
-        return chr(next_code)
-    else:
-        return chr(next_code - 26)
+def chat_at(length):
+    return string.ascii_uppercase[length - 1]
 
 
-def get_col_index(col_name: str):
-    print(ord(col_name))
+def get_location(length, index=1):
+    if length <= 26:
+        return f"{chat_at(length)}{index}"
 
+    iteration = math.ceil(length / 26)
+    first_char = chat_at(iteration - 1)
+    second_char = chat_at(length % 26)
 
-def to_range(start: str = "A", count: int = 0, index: int = 1):
-    return f"{start}{index}:{next_char(start, count)}{index}"
+    return f"{first_char}{second_char}"
 
 
 async def run_in_executor(func, *args, **kwargs):

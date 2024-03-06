@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "betterspread"
-version = "0.1.7"
+version = "0.1.8"
 description = ""
 authors = ["Md Shahriyar Alam <contact@shahriyar.dev>"]
 readme = "README.md"

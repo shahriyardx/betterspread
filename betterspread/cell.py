@@ -48,9 +48,7 @@ class Cell(str):
             )
 
         print(self.label, self.row_index)
-        await run_in_executor(
-            self.tab.batch_clear, [f"{self.label}{self.row_index}"]
-        )
+        await run_in_executor(self.tab.batch_clear, [f"{self.label}{self.row_index}"])
 
     async def update(
         self, value: Any, input_format: str = "raw", render_format: str = "formatted"
