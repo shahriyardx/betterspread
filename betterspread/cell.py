@@ -46,8 +46,10 @@ class Cell(str):
             self.row[self.cell_index] = Cell(
                 "", self.tab, label=self.label, row_index=self.row_index, row=self.row
             )
+
+        print(self.label, self.row_index)
         await run_in_executor(
-            self.tab.sheet.values_clear, f"{self.label}{self.row_index}"
+            self.tab.batch_clear, [f"{self.label}{self.row_index}"]
         )
 
     async def update(

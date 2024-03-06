@@ -13,7 +13,7 @@ repository = "https://github.com/shahriyardx/betterspread"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-gspread = "^5.12.0"
+gspread = "^6.0.2"
 gspread-formatting = "^1.1.2"
 
 
@@ -21,6 +21,7 @@ gspread-formatting = "^1.1.2"
 black = "^23.11.0"
 isort = "^5.12.0"
 jupyter = "^1.0.0"
+pytest = "^8.0.2"
 
 [build-system]
 requires = ["poetry-core"]

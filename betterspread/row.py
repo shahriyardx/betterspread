@@ -27,7 +27,7 @@ class Row(list):
         return converted
 
     async def clear(self) -> None:
-        await run_in_executor(self.tab.sheet.values_clear, self.range)
+        await run_in_executor(self.tab.batch_clear, [self.range])
         empty_items = self.convert_to_cell(list(map(lambda _: "", self.items)))
         self.items = empty_items
         super().__init__(empty_items)
