@@ -64,8 +64,8 @@ class Cell(str):
 
         await run_in_executor(
             self.tab.update,
+            [[value]],
             f"{self.label}{self.row_index}",
-            value,
             value_input_option=input_formats.get(input_format, "raw"),
             response_value_render_option=render_formats.get(render_format, "formatted"),
         )

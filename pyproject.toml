@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "betterspread"
-version = "0.1.9"
+version = "0.2.0"
 description = ""
 authors = ["Md Shahriyar Alam <contact@shahriyar.dev>"]
 readme = "README.md"
@@ -13,7 +13,7 @@ repository = "https://github.com/shahriyardx/betterspread"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-gspread = "^6.0.2"
+gspread = "^6.1.0"
 gspread-formatting = "^1.1.2"
 
 

@@ -46,7 +46,11 @@ class Tab(Worksheet):
             **kwargs,
         )
 
-        data = resp[0][0]
+        try:
+            data = resp[0][0]
+        except IndexError:
+            data = ""
+
         return Cell(
             data,
             tab=self,

@@ -35,7 +35,7 @@ class Row(list):
 
     async def update(self, values: list, start: str = "A", *args, **kwargs):
         await run_in_executor(
-            self.tab.update, f"{start}{self.row_index}", [values], *args, **kwargs
+            self.tab.update, [values], f"{start}{self.row_index}", *args, **kwargs
         )
         self.items = self.convert_to_cell(values)
         super().__init__(self.items)
