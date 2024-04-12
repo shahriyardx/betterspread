@@ -8,9 +8,9 @@ def chat_at(length):
     return string.ascii_uppercase[length - 1]
 
 
-def get_location(length, index=1):
+def get_location(length):
     if length <= 26:
-        return f"{chat_at(length)}{index}"
+        return f"{chat_at(length)}"
 
     iteration = math.ceil(length / 26)
     first_char = chat_at(iteration - 1)
