@@ -5,9 +5,11 @@ from gspread import service_account, service_account_from_dict
 
 
 class Connection:
-    def __init__(
-        self, credentials_path: Union[Path, str] = None, credentials_dict: dict = None
-    ):
+    def __init__(self, credentials: Union[Path, str, dict] = None):
         self.open = False
-        func = service_account if credentials_path else service_account_from_dict
-        self.client = func(credentials_path or credentials_dict)
+        func = (
+            service_account
+            if isinstance(credentials, (Path, str))
+            else service_account_from_dict
+        )
+        self.client = func(credentials)

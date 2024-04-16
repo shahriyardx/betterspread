@@ -4,7 +4,6 @@ from gspread.utils import ValueInputOption, ValueRenderOption
 from gspread_formatting import format_cell_range
 
 from .style import Style
-from .utils import run_in_executor
 
 if TYPE_CHECKING:
     from .row import Row
@@ -41,16 +40,15 @@ class Cell(str):
         instance.row = row
         return instance
 
-    async def clear(self):
+    def clear(self):
         if self.row:
             self.row[self.cell_index] = Cell(
                 "", self.tab, label=self.label, row_index=self.row_index, row=self.row
             )
 
-        print(self.label, self.row_index)
-        await run_in_executor(self.tab.batch_clear, [f"{self.label}{self.row_index}"])
+        self.tab.batch_clear([f"{self.label}{self.row_index}"])
 
-    async def update(
+    def update(
         self, value: Any, input_format: str = "raw", render_format: str = "formatted"
     ):
         if self.row:
@@ -62,8 +60,7 @@ class Cell(str):
                 row=self.row,
             )
 
-        await run_in_executor(
-            self.tab.update,
+        self.tab.update(
             [[value]],
             f"{self.label}{self.row_index}",
             value_input_option=input_formats.get(input_format, "raw"),
@@ -73,11 +70,9 @@ class Cell(str):
             value, self.tab, self.label, self.row_index, self.cell_index, self.row
         )
 
-    async def style(self, obj: Style):
+    def style(self, obj: Style):
         style = obj.raw if isinstance(obj, Style) else obj
-        await run_in_executor(
-            format_cell_range, self.tab, f"{self.label}{self.row_index}", style
-        )
+        format_cell_range(self.tab, f"{self.label}{self.row_index}", style)
 
-    async def delete(self, shift: str = "left"):
-        await self.tab.del_cell(f"{self.label}{self.row_index}", shift=shift)
+    def delete(self, shift: str = "left"):
+        self.tab.del_cell(f"{self.label}{self.row_index}", shift=shift)

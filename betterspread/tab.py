@@ -6,7 +6,6 @@ from gspread.utils import ValueRenderOption
 
 from .cell import Cell
 from .row import Row
-from .utils import run_in_executor
 
 render_formats = {
     "formatted": ValueRenderOption.formatted,
@@ -24,23 +23,22 @@ class Tab(Worksheet):
     def __repr__(self):
         return f"<Tab title='{self.title}' id={self.id}>"
 
-    async def values(self, **kwargs) -> List[Row]:
-        rows = await run_in_executor(self.get_values, **kwargs)
+    def values(self, **kwargs) -> List[Row]:
+        rows = self.get_values(**kwargs)
 
         for i, row in enumerate(rows):
             rows[i] = Row(row, tab=self, index=i + 1)
 
         return rows
 
-    async def get_row(self, serial_no: int):
-        values = await self.values()
+    def get_row(self, serial_no: int):
+        values = self.values()
         return values[serial_no - 1]
 
-    async def get_cell(
+    def get_cell(
         self, cell_name: str, render_option: str = "formatted", **kwargs
     ):
-        resp = await run_in_executor(
-            self.get,
+        resp = self.get(
             cell_name,
             value_render_option=render_formats.get(render_option, "formatted"),
             **kwargs,
@@ -60,19 +58,17 @@ class Tab(Worksheet):
             row=None,
         )
 
-    async def append(self, data: list, get_row: bool = False):
-        await run_in_executor(self.append_row, data)
+    def append(self, data: list, get_row: bool = False):
+        self.append_row(data)
 
         if get_row:
-            values = await self.values()
+            values = self.values()
             return values[-1]
 
-    async def del_row(self, start: int, end: int = None):
-        await run_in_executor(
-            self.delete_rows, start_index=start, end_index=end or start
-        )
+    def del_row(self, start: int, end: int = None):
+        self.delete_rows(start_index=start, end_index=end or start)
 
-    async def del_cell(self, start: str, end: str = None, shift: str = "up"):
+    def del_cell(self, start: str, end: str = None, shift: str = "up"):
         [start_col_name, *start_row_indexs] = list(start)
         if end:
             [end_col_name, *end_row_indexs] = list(end)

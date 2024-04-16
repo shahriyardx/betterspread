@@ -4,7 +4,6 @@ from gspread import Client, Spreadsheet
 
 from .connection import Connection
 from .tab import Tab
-from .utils import run_in_executor
 
 
 @dataclass
@@ -16,19 +15,15 @@ class Sheet(Spreadsheet):
     _properties: dict = None
     _open: bool = False
 
-    async def open(self):
-        if not self._open:
-            sheet = await run_in_executor(
-                self.connection.client.open, self.sheet_name, folder_id=self.folder_id
-            )
-            self.sheet = sheet
-            self.client: Client = sheet.client
-            self._properties: dict = sheet._properties  # noqa
-            self._open = True
+    def __post_init__(self):
+        sheet = self.connection.client.open(self.sheet_name, folder_id=self.folder_id)
+        self.sheet = sheet
+        self.client: Client = sheet.client
+        self._properties: dict = sheet._properties  # noqa
+        self._open = True
 
-    async def get_tab(self, tab_name: str) -> Tab:
-        await self.open()
-        _tab = await run_in_executor(self.worksheet, tab_name)
+    def get_tab(self, tab_name: str) -> Tab:
+        _tab = self.worksheet(tab_name)
         return Tab(
             spreadsheet=self.sheet,
             properties=_tab._properties,  # noqa
@@ -37,9 +32,8 @@ class Sheet(Spreadsheet):
             client=self.sheet.client,
         )
 
-    async def tabs(self, exclude_hidden: bool = False):
-        await self.open()
-        sheets = await run_in_executor(self.worksheets, exclude_hidden=exclude_hidden)
+    def tabs(self, exclude_hidden: bool = False):
+        sheets = self.worksheets(exclude_hidden=exclude_hidden)
 
         return [
             Tab(
