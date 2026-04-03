@@ -16,16 +16,23 @@ class TestStyleBuildsFromKeywords:
         assert isinstance(Style().raw, CellFormat)
 
     def test_bold(self):
-        assert Style(bold=True).raw.textFormat.bold is True
+        tf = Style(bold=True).raw.textFormat
+        assert tf is not None
+        assert tf.bold is True
 
     def test_italic(self):
-        assert Style(italic=True).raw.textFormat.italic is True
+        tf = Style(italic=True).raw.textFormat
+        assert tf is not None
+        assert tf.italic is True
 
     def test_strikethrough(self):
-        assert Style(strikethrough=True).raw.textFormat.strikethrough is True
+        tf = Style(strikethrough=True).raw.textFormat
+        assert tf is not None
+        assert tf.strikethrough is True
 
     def test_flags_default_to_false(self):
         tf = Style().raw.textFormat
+        assert tf is not None
         assert tf.bold is False
         assert tf.italic is False
         assert tf.strikethrough is False
@@ -46,7 +53,9 @@ class TestStyleBuildsFromKeywords:
         assert Style(bg_color="#ff0000").raw.backgroundColor is not None
 
     def test_text_color_is_set(self):
-        assert Style(text_color="#0000ff").raw.textFormat.foregroundColor is not None
+        tf = Style(text_color="#0000ff").raw.textFormat
+        assert tf is not None
+        assert tf.foregroundColor is not None
 
     def test_two_different_bg_colors_differ(self):
         red = Style(bg_color="#ff0000").raw.backgroundColor
