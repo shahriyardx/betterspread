@@ -1,6 +1,7 @@
 # Project files
 test/
 credentials.json
+.env
 .idea/
 .ruff_cache/
 main.py
