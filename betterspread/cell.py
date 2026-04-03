@@ -26,8 +26,6 @@ class Cell(str):
             cell was fetched directly via :meth:`Tab.get_cell`.
     """
 
-    # Class-level annotations let pyright (and other type-checkers) know that
-    # these instance attributes exist even though they are set inside __new__.
     tab: "Tab"
     label: str
     row_index: int
@@ -53,10 +51,6 @@ class Cell(str):
 
     def __repr__(self) -> str:
         return f"<Cell {self.label}{self.row_index}={str(self)!r}>"
-
-    # ------------------------------------------------------------------
-    # Mutating operations
-    # ------------------------------------------------------------------
 
     async def clear(self) -> None:
         """Clear the value of this cell in the remote spreadsheet."""

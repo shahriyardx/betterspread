@@ -44,17 +44,10 @@ class Sheet(Spreadsheet):
         self.folder_id = folder_id
         self.sheet: Spreadsheet | None = None
         self._is_open = False
-        # NOTE: Spreadsheet.__init__ is intentionally not called here because
-        # it requires an already-opened client + properties dict.  Those are
-        # set up in open() once the network call succeeds.
 
     def __repr__(self) -> str:
         status = "open" if self._is_open else "closed"
         return f"<Sheet name={self.sheet_name!r} status={status}>"
-
-    # ------------------------------------------------------------------
-    # Connection lifecycle
-    # ------------------------------------------------------------------
 
     async def open(self) -> None:
         """Open the remote spreadsheet (no-op if already open)."""
@@ -66,12 +59,8 @@ class Sheet(Spreadsheet):
             )
             self.sheet = _sheet
             self.client: Client = _sheet.client
-            self._properties: dict = _sheet._properties  # noqa: SLF001
+            self._properties: dict = _sheet._properties
             self._is_open = True
-
-    # ------------------------------------------------------------------
-    # Tab / worksheet access
-    # ------------------------------------------------------------------
 
     async def get_tab(self, tab_name: str) -> Tab:
         """Return the worksheet named *tab_name* as a :class:`Tab`.
@@ -83,11 +72,11 @@ class Sheet(Spreadsheet):
             A :class:`~betterspread.tab.Tab` wrapping the requested worksheet.
         """
         await self.open()
-        assert self.sheet is not None  # guaranteed after open()
+        assert self.sheet is not None
         _tab = await run_in_executor(self.worksheet, tab_name)
         return Tab(
             spreadsheet=self.sheet,
-            properties=_tab._properties,  # noqa: SLF001
+            properties=_tab._properties,
             sheet=self,
             spreadsheet_id=self.sheet.id,
             client=self.sheet.client,

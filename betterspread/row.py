@@ -31,10 +31,6 @@ class Row(list):
     def __repr__(self) -> str:
         return f"<Row {self.row_index} {list(self)!r}>"
 
-    # ------------------------------------------------------------------
-    # Internal helpers
-    # ------------------------------------------------------------------
-
     def _to_cells(self, items: list) -> list[Cell]:
         """Convert a flat list of raw values into :class:`Cell` objects."""
 
@@ -50,10 +46,6 @@ class Row(list):
             )
 
         return list(map(_make_cell, enumerate(items)))
-
-    # ------------------------------------------------------------------
-    # Mutating operations
-    # ------------------------------------------------------------------
 
     async def clear(self) -> None:  # type: ignore[override]
         """Clear all values in this row in the remote spreadsheet."""

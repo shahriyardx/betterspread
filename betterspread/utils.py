@@ -5,10 +5,6 @@ from functools import partial
 
 from gspread.utils import ValueInputOption, ValueRenderOption
 
-# ---------------------------------------------------------------------------
-# Shared format lookup tables (single source of truth for all modules)
-# ---------------------------------------------------------------------------
-
 input_formats: dict[str, ValueInputOption] = {
     "raw": ValueInputOption.raw,
     "user_entered": ValueInputOption.user_entered,
@@ -19,10 +15,6 @@ render_formats: dict[str, ValueRenderOption] = {
     "unformatted": ValueRenderOption.unformatted,
     "formula": ValueRenderOption.formula,
 }
-
-# ---------------------------------------------------------------------------
-# Column / cell helpers
-# ---------------------------------------------------------------------------
 
 _CELL_RE = re.compile(r"^([A-Za-z]+)(\d+)$")
 
@@ -96,11 +88,6 @@ def col_label_to_index(label: str) -> int:
     for char in label.upper():
         result = result * 26 + (ord(char) - ord("A") + 1)
     return result - 1
-
-
-# ---------------------------------------------------------------------------
-# Async executor helper
-# ---------------------------------------------------------------------------
 
 
 async def run_in_executor(func, *args, **kwargs):

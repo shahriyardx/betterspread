@@ -15,10 +15,6 @@ class Tab(Worksheet):
     def __repr__(self) -> str:
         return f"<Tab title='{self.title}' id={self.id}>"
 
-    # ------------------------------------------------------------------
-    # Reading
-    # ------------------------------------------------------------------
-
     async def values(self, **kwargs) -> list[Row]:
         """Return all rows in the sheet as a list of :class:`Row` objects."""
         rows: list = await run_in_executor(self.get_values, **kwargs)
@@ -75,10 +71,6 @@ class Tab(Worksheet):
             cell_index=cell_idx,
             row=None,
         )
-
-    # ------------------------------------------------------------------
-    # Writing / mutating
-    # ------------------------------------------------------------------
 
     async def append(self, data: list, get_row: bool = False) -> Row | None:
         """Append *data* as a new row at the bottom of the sheet.
