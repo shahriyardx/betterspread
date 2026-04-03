@@ -3,6 +3,7 @@ test/
 credentials.json
 .idea/
 .ruff_cache/
+main.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
