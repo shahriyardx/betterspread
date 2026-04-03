@@ -1,6 +1,5 @@
 # Project files
 test/
-tests/
 credentials.json
 .idea/
 .ruff_cache/

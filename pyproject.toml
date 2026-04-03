@@ -1,29 +1,29 @@
-[tool.poetry]
+[project]
 name = "betterspread"
 version = "0.2.2"
-description = ""
-authors = ["Md Shahriyar Alam <contact@shahriyar.dev>"]
-readme = "README.md"
-license = "MIT"
+description = "An async wrapper around gspread with cell and row level functionalities"
+authors = [
+    {name = "Md Shahriyar Alam", email = "contact@shahriyar.dev"}
+]
+requires-python = ">=3.13"
+dependencies = [
+    "gspread>=6.2.1",
+    "gspread-formatting>=1.2.1",
+]
 
-[tool.poetry.urls]
-homepage = "https://github.com/shahriyardx/betterspread"
-repository = "https://github.com/shahriyardx/betterspread"
-"Bug Tracker" = "https://github.com/shahriyardx/betterspread/issues"
-
-[tool.poetry.dependencies]
-python = "^3.9"
-gspread = "^6.1.0"
-gspread-formatting = "^1.1.2"
-
-
-[tool.poetry.group.dev.dependencies]
-isort = "^5.12.0"
-jupyter = "^1.0.0"
-pytest = "^8.0.2"
-ruff = "^0.3.7"
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
+[tool.hatch.build.targets.wheel]
+packages = ["betterspread"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
