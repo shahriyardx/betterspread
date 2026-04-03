@@ -1,2 +1,2 @@
 sphinx>=8.0.0
-sphinxawesome-theme
+furo>=2024.0.0
