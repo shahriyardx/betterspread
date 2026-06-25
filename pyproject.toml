@@ -1,6 +1,6 @@
 [project]
 name = "betterspread"
-version = "1.0.6"
+version = "1.1.0"
 description = "An async wrapper around gspread with cell and row level functionalities"
 readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
