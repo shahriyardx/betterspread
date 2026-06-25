@@ -39,12 +39,14 @@ gspread is a great library, but all its methods are synchronous and operate at t
 | Per-row `update` / `clear` / `style` / `delete` | ✗ | ✓ |
 | Lazy connection (open on first use) | ✗ | ✓ |
 | Load credentials from a file or a dict | ✗ | ✓ |
+| Automatic retry/backoff on rate limits | ✗ | ✓ |
+| Numeric cell accessor (`cell.number`) | ✗ | ✓ |
 
 ---
 
 ## Requirements
 
-- Python **≥ 3.13**
+- Python **≥ 3.10**
 - A Google Cloud **service account** with the Sheets and Drive APIs enabled
 
 ---
@@ -59,6 +61,18 @@ Or with [uv](https://github.com/astral-sh/uv):
 
 ```bash
 uv add betterspread
+```
+
+---
+
+## Configuration
+
+betterspread runs gspread's blocking calls in a dedicated thread pool and automatically retries transient Google API errors (HTTP `429` and `5xx`) with exponential backoff, so you rarely need to handle rate limits yourself.
+
+- **Thread pool size** — set `BETTERSPREAD_MAX_WORKERS` to override the default (`min(32, cpu_count + 4)`):
+
+```bash
+export BETTERSPREAD_MAX_WORKERS=8
 ```
 
 ---
@@ -135,7 +149,7 @@ Exactly one of the two arguments must be supplied.
 | `credentials_path` | `Path \| str` | Path to a service-account JSON key file. |
 | `credentials_dict` | `dict` | Service-account credentials as a dictionary (useful when loading from an environment variable). |
 
-**Raises** `ValueError` if neither argument is provided.
+**Raises** `ValueError` if neither argument is provided, or if both are provided.
 
 #### Examples
 
@@ -372,8 +386,18 @@ print(repr(cell))      # <Cell B2='hello'>
 | `label` | `str` | Column label, e.g. `"A"` or `"AA"`. |
 | `row_index` | `int` | 1-based row number. |
 | `cell_index` | `int` | 0-based column index within its parent row. |
+| `number` | `int \| float \| None` | Value as a number, or `None` if not numeric. |
 | `tab` | `Tab` | The `Tab` this cell belongs to. |
 | `row` | `Row \| None` | Parent `Row`, or `None` when fetched via `get_cell()`. |
+
+Because `Cell` is a `str`, numeric sheet values arrive as strings. Use `.number` to skip manual conversion:
+
+```python
+qty = await tab.get_cell("B2")
+print(qty)         # "25"   (a str)
+print(qty.number)  # 25     (an int)
+total = qty.number * 1.1
+```
 
 #### Methods
 
@@ -424,20 +448,22 @@ await cell.delete(shift="up")     # shift up
 
 ### Style
 
-A dataclass that builds a `gspread_formatting.CellFormat` from simple keyword arguments. Pass a `Style` to [`Cell.style()`](#await-cellistyleobj) or [`Row.style()`](#await-rowistyleobj).
+Builds a `gspread_formatting.CellFormat` from simple keyword arguments. Pass a `Style` to [`Cell.style()`](#await-cellistyleobj) or [`Row.style()`](#await-rowistyleobj).
 
 ```python
 Style(
-    bg_color: str = "#ffffff",
-    text_color: str = "#000000",
-    horizontal_align: str = "left",   # "left" | "center" | "right"
-    vertical_align: str = "middle",   # "top"  | "middle" | "bottom"
-    bold: bool = False,
-    italic: bool = False,
-    strikethrough: bool = False,
+    bg_color: str | None = None,
+    text_color: str | None = None,
+    horizontal_align: str | None = None,  # "left" | "center" | "right"
+    vertical_align: str | None = None,    # "top"  | "middle" | "bottom"
+    bold: bool | None = None,
+    italic: bool | None = None,
+    strikethrough: bool | None = None,
     raw: CellFormat | None = None,
 )
 ```
+
+Only the properties you pass are written — anything left as `None` is omitted, so applying a `Style` never clobbers formatting you did not set. `Style(bold=True)` makes a cell bold without touching its existing background, text color, or alignment.
 
 When `raw` is provided all other arguments are ignored and the `CellFormat` is passed through unchanged.
 
@@ -470,7 +496,7 @@ await cell.style(Style(raw=CellFormat(backgroundColor=Color(1, 0.8, 0))))
 ### Setup
 
 ```bash
-git clone https://github.com/shahriyar-alam/betterspread.git
+git clone https://github.com/shahriyardx/betterspread.git
 cd betterspread
 uv sync --group dev
 ```
