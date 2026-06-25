@@ -89,3 +89,11 @@ class TestStyleRawPassthrough:
         fmt = CellFormat()
         style = Style(raw=fmt, bold=True, bg_color="#ff0000")
         assert style.raw is fmt
+
+
+class TestStyleRepr:
+    def test_repr_shows_properties(self):
+        r = repr(Style(bg_color="#ff0000", bold=True, italic=True))
+        assert "bg_color='#ff0000'" in r
+        assert "bold=True" in r
+        assert "italic=True" in r

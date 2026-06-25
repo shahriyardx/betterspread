@@ -230,3 +230,43 @@ class TestRowDelete:
         await row.delete()
 
         mock_tab.del_row.assert_called_once_with(5)
+
+
+# ---------------------------------------------------------------------------
+# __repr__ — compact, shows index and cell count (not every cell)
+# ---------------------------------------------------------------------------
+
+
+class TestRowRepr:
+    def test_shows_index_and_count(self):
+        assert repr(make_row(["a", "b"], index=3)) == "<Row index=3 cells=2>"
+
+    def test_empty_row(self):
+        assert repr(make_row([], index=1)) == "<Row index=1 cells=0>"
+
+
+# ---------------------------------------------------------------------------
+# style() — accepts a Style or a raw CellFormat, applies to the whole row
+# ---------------------------------------------------------------------------
+
+
+class TestRowStyle:
+    async def test_unwraps_style_object(self):
+        from betterspread.style import Style
+
+        style = Style(bold=True)
+        row = Row(["a"], tab=MagicMock(), index=4)
+        with patch("betterspread.row.run_in_executor", new_callable=AsyncMock) as m:
+            await row.style(style)
+        # passes (format_cell_range, tab, "4:4", style.raw)
+        assert m.call_args.args[2] == "4:4"
+        assert m.call_args.args[3] is style.raw
+
+    async def test_accepts_raw_cellformat(self):
+        from gspread_formatting import CellFormat
+
+        fmt = CellFormat()
+        row = Row(["a"], tab=MagicMock(), index=1)
+        with patch("betterspread.row.run_in_executor", new_callable=AsyncMock) as m:
+            await row.style(fmt)
+        assert m.call_args.args[3] is fmt

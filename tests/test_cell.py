@@ -237,3 +237,51 @@ class TestCellClear:
             m.return_value = None
             await cell.clear()
         mock_row.__setitem__.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# style() — accepts a Style or a raw CellFormat, applies to this cell
+# ---------------------------------------------------------------------------
+
+
+class TestCellStyle:
+    async def test_unwraps_style_object(self):
+        from betterspread.style import Style
+
+        style = Style(bold=True)
+        cell = make_cell("v", label="B", row_index=2)
+        with patch("betterspread.cell.run_in_executor", new_callable=AsyncMock) as m:
+            await cell.style(style)
+        # The raw CellFormat (not the Style wrapper) is passed through.
+        assert m.call_args.args[3] is style.raw
+        assert m.call_args.args[2] == "B2"
+
+    async def test_accepts_raw_cellformat(self):
+        from gspread_formatting import CellFormat
+
+        fmt = CellFormat()
+        cell = make_cell("v", label="A", row_index=1)
+        with patch("betterspread.cell.run_in_executor", new_callable=AsyncMock) as m:
+            await cell.style(fmt)
+        assert m.call_args.args[3] is fmt
+
+
+# ---------------------------------------------------------------------------
+# delete() — delegates to tab.del_cell
+# ---------------------------------------------------------------------------
+
+
+class TestCellDelete:
+    async def test_delegates_to_tab_del_cell(self):
+        mock_tab = MagicMock()
+        mock_tab.del_cell = AsyncMock()
+        cell = Cell("v", mock_tab, "B", 2, 1)
+        await cell.delete()
+        mock_tab.del_cell.assert_called_once_with("B2", shift="left")
+
+    async def test_passes_shift_direction(self):
+        mock_tab = MagicMock()
+        mock_tab.del_cell = AsyncMock()
+        cell = Cell("v", mock_tab, "A", 1, 0)
+        await cell.delete(shift="up")
+        mock_tab.del_cell.assert_called_once_with("A1", shift="up")
