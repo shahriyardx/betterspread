@@ -9,25 +9,34 @@ class Style:
     :class:`CellFormat` for you, or pass a pre-built *raw* :class:`CellFormat`
     directly.
 
+    Only the properties you actually pass are written to the cell.  Anything
+    left as ``None`` is omitted from the compiled :class:`CellFormat`, so
+    applying a :class:`Style` never clobbers formatting you did not set (e.g.
+    ``Style(bold=True)`` leaves the existing background colour untouched).
+
     When *raw* is provided the individual keyword arguments are ignored.
 
     Examples::
 
-        # Build from individual properties
-        style = Style(bg_color="#ffff00", bold=True)
+        # Build from individual properties (only bold is changed)
+        style = Style(bold=True)
 
         # Wrap an existing CellFormat
         from gspread_formatting import CellFormat, Color
         style = Style(raw=CellFormat(backgroundColor=Color(1, 0, 0)))
 
     Attributes:
-        bg_color: Background colour as a hex string (e.g. ``"#ffffff"``).
-        text_color: Foreground (text) colour as a hex string.
-        horizontal_align: One of ``"left"``, ``"center"``, or ``"right"``.
-        vertical_align: One of ``"top"``, ``"middle"``, or ``"bottom"``.
-        bold: Whether the text is bold.
-        italic: Whether the text is italic.
-        strikethrough: Whether the text has a strikethrough decoration.
+        bg_color: Background colour as a hex string (e.g. ``"#ffffff"``), or
+            ``None`` to leave it unchanged.
+        text_color: Foreground (text) colour as a hex string, or ``None``.
+        horizontal_align: One of ``"left"``, ``"center"``, or ``"right"``, or
+            ``None``.
+        vertical_align: One of ``"top"``, ``"middle"``, or ``"bottom"``, or
+            ``None``.
+        bold: Whether the text is bold, or ``None`` to leave unchanged.
+        italic: Whether the text is italic, or ``None`` to leave unchanged.
+        strikethrough: Whether the text has a strikethrough decoration, or
+            ``None`` to leave unchanged.
         raw: The compiled :class:`gspread_formatting.CellFormat` object.
             Always populated after construction.
     """
@@ -36,13 +45,13 @@ class Style:
 
     def __init__(
         self,
-        bg_color: str = "#ffffff",
-        text_color: str = "#000000",
-        horizontal_align: str = "left",
-        vertical_align: str = "middle",
-        bold: bool = False,
-        italic: bool = False,
-        strikethrough: bool = False,
+        bg_color: str | None = None,
+        text_color: str | None = None,
+        horizontal_align: str | None = None,
+        vertical_align: str | None = None,
+        bold: bool | None = None,
+        italic: bool | None = None,
+        strikethrough: bool | None = None,
         raw: CellFormat | None = None,
     ) -> None:
         self.bg_color = bg_color
@@ -55,21 +64,29 @@ class Style:
 
         if raw is not None:
             self.raw = raw
-        else:
-            bg = Color.fromHex(bg_color)
-            fg = Color.fromHex(text_color)
+            return
 
-            self.raw = CellFormat(
-                backgroundColor=bg,
-                textFormat=TextFormat(
-                    foregroundColor=fg,
-                    bold=bold,
-                    italic=italic,
-                    strikethrough=strikethrough,
-                ),
-                horizontalAlignment=horizontal_align.upper(),
-                verticalAlignment=vertical_align.upper(),
-            )
+        text_kwargs: dict = {}
+        if text_color is not None:
+            text_kwargs["foregroundColor"] = Color.fromHex(text_color)
+        if bold is not None:
+            text_kwargs["bold"] = bold
+        if italic is not None:
+            text_kwargs["italic"] = italic
+        if strikethrough is not None:
+            text_kwargs["strikethrough"] = strikethrough
+
+        fmt_kwargs: dict = {}
+        if bg_color is not None:
+            fmt_kwargs["backgroundColor"] = Color.fromHex(bg_color)
+        if horizontal_align is not None:
+            fmt_kwargs["horizontalAlignment"] = horizontal_align.upper()
+        if vertical_align is not None:
+            fmt_kwargs["verticalAlignment"] = vertical_align.upper()
+        if text_kwargs:
+            fmt_kwargs["textFormat"] = TextFormat(**text_kwargs)
+
+        self.raw = CellFormat(**fmt_kwargs)
 
     def __repr__(self) -> str:
         return (

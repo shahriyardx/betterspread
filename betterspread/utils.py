@@ -1,6 +1,5 @@
 import asyncio
 import re
-import string
 from functools import partial
 
 from gspread.utils import ValueInputOption, ValueRenderOption
@@ -17,11 +16,6 @@ render_formats: dict[str, ValueRenderOption] = {
 }
 
 _CELL_RE = re.compile(r"^([A-Za-z]+)(\d+)$")
-
-
-def char_at(length: int) -> str:
-    """Return the uppercase ASCII letter at the given 1-based position (1 → 'A')."""
-    return string.ascii_uppercase[length - 1]
 
 
 def get_location(length: int) -> str:

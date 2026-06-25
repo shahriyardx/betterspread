@@ -1,3 +1,5 @@
+import asyncio
+
 from gspread import Client, Spreadsheet
 
 from .connection import Connection
@@ -44,6 +46,7 @@ class Sheet(Spreadsheet):
         self.folder_id = folder_id
         self.sheet: Spreadsheet | None = None
         self._is_open = False
+        self._open_lock = asyncio.Lock()
 
     def __repr__(self) -> str:
         status = "open" if self._is_open else "closed"
@@ -51,13 +54,26 @@ class Sheet(Spreadsheet):
 
     async def open(self) -> None:
         """Open the remote spreadsheet (no-op if already open)."""
-        if not self._is_open:
+        if self._is_open:
+            return
+
+        # Serialize concurrent opens so two coroutines can't both fire the
+        # network call; re-check inside the lock for the waiter that follows.
+        async with self._open_lock:
+            if self._is_open:
+                return
             _sheet = await run_in_executor(
                 self.connection.client.open,
                 self.sheet_name,
                 folder_id=self.folder_id,
             )
             self.sheet = _sheet
+            # NOTE: we deliberately do NOT call Spreadsheet.__init__ here.
+            # gspread's base __init__ fires a synchronous fetch_sheet_metadata()
+            # network request, which would block the event loop and duplicate
+            # the work already done by client.open(). Instead we copy the two
+            # attributes inherited methods rely on (client + _properties) off the
+            # spreadsheet object we already fetched.
             self.client: Client = _sheet.client
             self._properties: dict = _sheet._properties
             self._is_open = True

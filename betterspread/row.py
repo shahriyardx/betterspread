@@ -29,7 +29,7 @@ class Row(list):
         super().__init__(self.items)
 
     def __repr__(self) -> str:
-        return f"<Row {self.row_index} {list(self)!r}>"
+        return f"<Row index={self.row_index} cells={len(self)}>"
 
     def _to_cells(self, items: list) -> list[Cell]:
         """Convert a flat list of raw values into :class:`Cell` objects."""

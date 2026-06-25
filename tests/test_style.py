@@ -30,12 +30,22 @@ class TestStyleBuildsFromKeywords:
         assert tf is not None
         assert tf.strikethrough is True
 
-    def test_flags_default_to_false(self):
-        tf = Style().raw.textFormat
+    def test_unset_flags_are_omitted(self):
+        # Style() with no args must not push any text formatting, so applying
+        # it never clobbers a cell's existing bold/italic/strikethrough.
+        assert Style().raw.textFormat is None
+
+    def test_only_requested_flag_is_set(self):
+        tf = Style(bold=True).raw.textFormat
+        assert tf is not None
+        assert tf.bold is True
+        assert tf.italic is None
+        assert tf.strikethrough is None
+
+    def test_explicit_false_is_written(self):
+        tf = Style(bold=False).raw.textFormat
         assert tf is not None
         assert tf.bold is False
-        assert tf.italic is False
-        assert tf.strikethrough is False
 
     def test_horizontal_align_is_uppercased(self):
         assert Style(horizontal_align="center").raw.horizontalAlignment == "CENTER"
@@ -43,11 +53,18 @@ class TestStyleBuildsFromKeywords:
     def test_vertical_align_is_uppercased(self):
         assert Style(vertical_align="top").raw.verticalAlignment == "TOP"
 
-    def test_default_horizontal_align(self):
-        assert Style().raw.horizontalAlignment == "LEFT"
+    def test_unset_horizontal_align_is_omitted(self):
+        assert Style().raw.horizontalAlignment is None
 
-    def test_default_vertical_align(self):
-        assert Style().raw.verticalAlignment == "MIDDLE"
+    def test_unset_vertical_align_is_omitted(self):
+        assert Style().raw.verticalAlignment is None
+
+    def test_styling_one_property_does_not_clobber_others(self):
+        # The core fix: setting only bold leaves background/alignment unset.
+        raw = Style(bold=True).raw
+        assert raw.backgroundColor is None
+        assert raw.horizontalAlignment is None
+        assert raw.verticalAlignment is None
 
     def test_background_color_is_set(self):
         assert Style(bg_color="#ff0000").raw.backgroundColor is not None

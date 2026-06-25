@@ -54,6 +54,10 @@ class Cell(str):
 
     async def clear(self) -> None:
         """Clear the value of this cell in the remote spreadsheet."""
+        await run_in_executor(self.tab.batch_clear, [f"{self.label}{self.row_index}"])
+
+        # Only update local state once the remote write has succeeded, so a
+        # failed API call never leaves the in-memory row out of sync.
         if self.row is not None:
             self.row[self.cell_index] = Cell(
                 "",
@@ -63,8 +67,6 @@ class Cell(str):
                 cell_index=self.cell_index,
                 row=self.row,
             )
-
-        await run_in_executor(self.tab.batch_clear, [f"{self.label}{self.row_index}"])
 
     async def update(
         self,
@@ -83,18 +85,6 @@ class Cell(str):
         Returns:
             A new :class:`Cell` instance whose string value equals *value*.
         """
-        updated = Cell(
-            value,
-            self.tab,
-            label=self.label,
-            row_index=self.row_index,
-            cell_index=self.cell_index,
-            row=self.row,
-        )
-
-        if self.row is not None:
-            self.row[self.cell_index] = updated
-
         await run_in_executor(
             self.tab.update,
             [[value]],
@@ -104,6 +94,19 @@ class Cell(str):
                 render_format, render_formats["formatted"]
             ),
         )
+
+        # Only update local state once the remote write has succeeded.
+        updated = Cell(
+            value,
+            self.tab,
+            label=self.label,
+            row_index=self.row_index,
+            cell_index=self.cell_index,
+            row=self.row,
+        )
+        if self.row is not None:
+            self.row[self.cell_index] = updated
+
         return updated
 
     async def style(self, obj: Style) -> None:
