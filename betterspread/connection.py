@@ -16,7 +16,7 @@ class Connection:
 
     Raises:
         ValueError: If neither *credentials_path* nor *credentials_dict* is
-            provided.
+            provided, or if both are provided.
     """
 
     client: Client
@@ -29,6 +29,11 @@ class Connection:
         if credentials_path is None and credentials_dict is None:
             raise ValueError(
                 "Either credentials_path or credentials_dict must be provided."
+            )
+
+        if credentials_path is not None and credentials_dict is not None:
+            raise ValueError(
+                "Provide only one of credentials_path or credentials_dict, not both."
             )
 
         if credentials_path is not None:

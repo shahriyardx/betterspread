@@ -41,18 +41,12 @@ class TestConnectionDispatch:
             Connection(credentials_dict=creds)
             mock_sad.assert_called_once_with(creds)
 
-    def test_path_takes_priority_over_dict(self):
-        with (
-            patch("betterspread.connection.service_account") as mock_sa,
-            patch("betterspread.connection.service_account_from_dict") as mock_sad,
-        ):
-            mock_sa.return_value = _mock_client()
+    def test_raises_when_both_provided(self):
+        with pytest.raises(ValueError, match="not both"):
             Connection(
                 credentials_path="./credentials.json",
                 credentials_dict={"type": "service_account"},
             )
-            mock_sa.assert_called_once()
-            mock_sad.assert_not_called()
 
     def test_client_is_stored(self):
         fake_client = _mock_client()

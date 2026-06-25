@@ -52,6 +52,28 @@ class Cell(str):
     def __repr__(self) -> str:
         return f"<Cell {self.label}{self.row_index}={str(self)!r}>"
 
+    @property
+    def number(self) -> int | float | None:
+        """The cell value as an ``int``/``float``, or ``None`` if not numeric.
+
+        A :class:`Cell` is a :class:`str` subclass, so numeric sheet values
+        arrive as strings (e.g. ``"25"``).  Use this to get a real number
+        without manual ``int()``/``float()`` juggling::
+
+            qty = await tab.get_cell("B2")
+            total = qty.number * price  # qty.number is 25, not "25"
+        """
+        text = str(self).strip()
+        if not text:
+            return None
+        try:
+            return int(text)
+        except ValueError:
+            try:
+                return float(text)
+            except ValueError:
+                return None
+
     async def clear(self) -> None:
         """Clear the value of this cell in the remote spreadsheet."""
         await run_in_executor(self.tab.batch_clear, [f"{self.label}{self.row_index}"])

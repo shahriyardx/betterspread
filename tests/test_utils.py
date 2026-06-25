@@ -8,7 +8,10 @@ Only covers what betterspread adds:
   - run_in_executor  : new async wrapper
 """
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
+from gspread.exceptions import APIError
 
 from betterspread.utils import (
     col_label_to_index,
@@ -177,3 +180,53 @@ class TestRunInExecutor:
 
         with pytest.raises(ValueError, match="from thread"):
             await run_in_executor(boom)
+
+
+# ---------------------------------------------------------------------------
+# run_in_executor — retry/backoff on transient Google API errors
+# ---------------------------------------------------------------------------
+
+
+def _api_error(status: int) -> APIError:
+    resp = MagicMock()
+    resp.status_code = status
+    resp.json.return_value = {"error": {"message": "boom", "code": status}}
+    return APIError(resp)
+
+
+class TestRunInExecutorRetry:
+    async def test_retries_then_succeeds_on_transient_error(self):
+        calls = {"n": 0}
+
+        def flaky():
+            calls["n"] += 1
+            if calls["n"] < 3:
+                raise _api_error(429)
+            return "ok"
+
+        with patch("betterspread.utils.asyncio.sleep", new_callable=AsyncMock):
+            result = await run_in_executor(flaky, _base_delay=0)
+
+        assert result == "ok"
+        assert calls["n"] == 3
+
+    async def test_gives_up_after_max_retries(self):
+        with patch("betterspread.utils.asyncio.sleep", new_callable=AsyncMock):
+            with pytest.raises(APIError):
+                await run_in_executor(
+                    lambda: (_ for _ in ()).throw(_api_error(503)),
+                    _max_retries=2,
+                    _base_delay=0,
+                )
+
+    async def test_non_transient_error_not_retried(self):
+        calls = {"n": 0}
+
+        def forbidden():
+            calls["n"] += 1
+            raise _api_error(403)
+
+        with pytest.raises(APIError):
+            await run_in_executor(forbidden, _base_delay=0)
+
+        assert calls["n"] == 1

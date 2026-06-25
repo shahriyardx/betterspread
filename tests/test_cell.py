@@ -79,6 +79,33 @@ class TestCellAttributes:
 
 
 # ---------------------------------------------------------------------------
+# number — numeric accessor
+# ---------------------------------------------------------------------------
+
+
+class TestCellNumber:
+    def test_integer(self):
+        assert make_cell("25").number == 25
+        assert isinstance(make_cell("25").number, int)
+
+    def test_float(self):
+        assert make_cell("3.14").number == 3.14
+        assert isinstance(make_cell("3.14").number, float)
+
+    def test_negative(self):
+        assert make_cell("-7").number == -7
+
+    def test_whitespace_is_stripped(self):
+        assert make_cell("  42  ").number == 42
+
+    def test_non_numeric_is_none(self):
+        assert make_cell("hello").number is None
+
+    def test_empty_is_none(self):
+        assert make_cell("").number is None
+
+
+# ---------------------------------------------------------------------------
 # __repr__
 # ---------------------------------------------------------------------------
 

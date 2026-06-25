@@ -1,8 +1,24 @@
 import asyncio
+import os
 import re
+from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 
+from gspread.exceptions import APIError
 from gspread.utils import ValueInputOption, ValueRenderOption
+
+# Dedicated thread pool for blocking gspread I/O, isolated from asyncio's
+# default executor so sheet calls neither starve nor are starved by other
+# run_in_executor users in the host application. Size is overridable via the
+# BETTERSPREAD_MAX_WORKERS environment variable.
+_DEFAULT_MAX_WORKERS = min(32, (os.cpu_count() or 1) + 4)
+_EXECUTOR = ThreadPoolExecutor(
+    max_workers=int(os.getenv("BETTERSPREAD_MAX_WORKERS") or _DEFAULT_MAX_WORKERS),
+    thread_name_prefix="betterspread",
+)
+
+# Transient Google API statuses worth retrying with exponential backoff.
+_RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
 
 input_formats: dict[str, ValueInputOption] = {
     "raw": ValueInputOption.raw,
@@ -84,11 +100,38 @@ def col_label_to_index(label: str) -> int:
     return result - 1
 
 
-async def run_in_executor(func, *args, **kwargs):
-    """Run a synchronous *func* in the default thread-pool executor.
+async def run_in_executor(
+    func,
+    *args,
+    _max_retries: int = 5,
+    _base_delay: float = 1.0,
+    **kwargs,
+):
+    """Run a synchronous *func* in betterspread's dedicated thread pool.
+
+    Transient Google API errors (HTTP 429/5xx) are retried with exponential
+    backoff up to *_max_retries* times; any other error propagates
+    immediately.
 
     Uses :func:`asyncio.get_running_loop` (the non-deprecated API available
     since Python 3.10) rather than the deprecated ``get_event_loop``.
+
+    Args:
+        func: The blocking callable to run.
+        _max_retries: Maximum number of retries on a transient API error.
+        _base_delay: Base seconds for the ``_base_delay * 2**attempt`` backoff.
     """
     bound = partial(func, *args, **kwargs)
-    return await asyncio.get_running_loop().run_in_executor(None, bound)
+    loop = asyncio.get_running_loop()
+
+    attempt = 0
+    while True:
+        try:
+            return await loop.run_in_executor(_EXECUTOR, bound)
+        except APIError as exc:
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            if status in _RETRY_STATUSES and attempt < _max_retries:
+                await asyncio.sleep(_base_delay * 2**attempt)
+                attempt += 1
+                continue
+            raise

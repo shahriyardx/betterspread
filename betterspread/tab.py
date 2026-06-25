@@ -83,13 +83,18 @@ class Tab(Worksheet):
         Returns:
             The appended :class:`Row` if *get_row* is ``True``, else ``None``.
         """
-        await run_in_executor(self.append_row, data)
+        resp = await run_in_executor(self.append_row, data)
 
-        if get_row:
-            all_rows = await self.values()
-            return all_rows[-1]
+        if not get_row:
+            return None
 
-        return None
+        # Derive the appended row from the API response's updatedRange (e.g.
+        # "Sheet1!A5:C5") rather than assuming it is the last row — the latter
+        # returns the wrong row under concurrent appends.
+        updated_range = resp["updates"]["updatedRange"]
+        first_cell = updated_range.split("!")[-1].split(":")[0]
+        _, row_index = parse_cell_name(first_cell)
+        return await self.get_row(row_index)
 
     async def del_row(self, start: int, end: int | None = None) -> None:
         """Delete one or more rows by their 1-based indices.
