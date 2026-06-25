@@ -1,26 +1,31 @@
 Style
 =====
 
-.. py:class:: Style(bg_color="#ffffff", text_color="#000000", horizontal_align="left", vertical_align="middle", bold=False, italic=False, strikethrough=False, raw=None)
+.. py:class:: Style(bg_color=None, text_color=None, horizontal_align=None, vertical_align=None, bold=None, italic=None, strikethrough=None, raw=None)
 
-   A dataclass that builds a ``gspread_formatting.CellFormat`` from simple keyword
-   arguments. Pass a ``Style`` to :meth:`~betterspread.Cell.style` or
+   Builds a ``gspread_formatting.CellFormat`` from simple keyword arguments.
+   Pass a ``Style`` to :meth:`~betterspread.Cell.style` or
    :meth:`~betterspread.Row.style`.
 
-   :param bg_color: Background color as a hex string. Defaults to ``"#ffffff"``.
-   :type bg_color: str
-   :param text_color: Text color as a hex string. Defaults to ``"#000000"``.
-   :type text_color: str
-   :param horizontal_align: ``"left"`` (default), ``"center"``, or ``"right"``.
-   :type horizontal_align: str
-   :param vertical_align: ``"top"``, ``"middle"`` (default), or ``"bottom"``.
-   :type vertical_align: str
-   :param bold: Bold text. Defaults to ``False``.
-   :type bold: bool
-   :param italic: Italic text. Defaults to ``False``.
-   :type italic: bool
-   :param strikethrough: Strikethrough text. Defaults to ``False``.
-   :type strikethrough: bool
+   Only the properties you pass are written. Anything left as ``None`` is
+   omitted from the compiled ``CellFormat``, so applying a ``Style`` never
+   clobbers formatting you did not set — ``Style(bold=True)`` makes a cell bold
+   without touching its existing background, text color, or alignment.
+
+   :param bg_color: Background color as a hex string, or ``None`` to leave unchanged.
+   :type bg_color: str | None
+   :param text_color: Text color as a hex string, or ``None`` to leave unchanged.
+   :type text_color: str | None
+   :param horizontal_align: ``"left"``, ``"center"``, ``"right"``, or ``None``.
+   :type horizontal_align: str | None
+   :param vertical_align: ``"top"``, ``"middle"``, ``"bottom"``, or ``None``.
+   :type vertical_align: str | None
+   :param bold: Bold text. ``None`` leaves it unchanged.
+   :type bold: bool | None
+   :param italic: Italic text. ``None`` leaves it unchanged.
+   :type italic: bool | None
+   :param strikethrough: Strikethrough text. ``None`` leaves it unchanged.
+   :type strikethrough: bool | None
    :param raw: A pre-built ``gspread_formatting.CellFormat``. When provided, all other arguments are ignored.
    :type raw: CellFormat | None
 

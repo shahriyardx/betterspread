@@ -32,3 +32,9 @@ and operate at the spreadsheet level. **betterspread** wraps it to give you:
    * - Load credentials from a file or a dict
      - ✗
      - ✓
+   * - Automatic retry/backoff on rate limits
+     - ✗
+     - ✓
+   * - Numeric cell accessor (``cell.number``)
+     - ✗
+     - ✓

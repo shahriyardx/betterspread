@@ -50,3 +50,17 @@ Instead of a file path you can pass credentials as a dict, which is useful for c
    from betterspread import Connection
 
    con = Connection(credentials_dict=json.loads(os.environ["GOOGLE_CREDENTIALS"]))
+
+Configuration
+-------------
+
+betterspread runs gspread's blocking calls in a dedicated thread pool and
+automatically retries transient Google API errors (HTTP ``429`` and ``5xx``)
+with exponential backoff, so you rarely need to handle rate limits yourself.
+
+* **Thread pool size** — set the ``BETTERSPREAD_MAX_WORKERS`` environment
+  variable to override the default (``min(32, cpu_count + 4)``).
+
+.. code-block:: bash
+
+   export BETTERSPREAD_MAX_WORKERS=8

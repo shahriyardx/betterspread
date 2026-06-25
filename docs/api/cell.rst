@@ -46,6 +46,23 @@ Attributes
      - ``Row | None``
      - Parent :class:`~betterspread.Row`, or ``None`` when fetched via ``get_cell()``.
 
+Properties
+----------
+
+.. py:attribute:: Cell.number
+   :type: int | float | None
+
+   The cell value as an ``int``/``float``, or ``None`` if it is not numeric.
+   Because a ``Cell`` is a ``str``, numeric sheet values arrive as strings;
+   ``number`` saves you the manual ``int()``/``float()`` conversion.
+
+   .. code-block:: python
+
+      qty = await tab.get_cell("B2")
+      print(qty)          # "25"      (a str)
+      print(qty.number)   # 25        (an int)
+      total = qty.number * 1.1
+
 Methods
 -------
 

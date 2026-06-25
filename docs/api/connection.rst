@@ -11,7 +11,7 @@ Connection
    :type credentials_path: Path | str | None
    :param credentials_dict: Service-account credentials as a dictionary (useful when loading from an environment variable).
    :type credentials_dict: dict | None
-   :raises ValueError: If neither argument is provided.
+   :raises ValueError: If neither argument is provided, or if both are provided.
 
 Examples
 --------
