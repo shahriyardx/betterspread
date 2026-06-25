@@ -20,6 +20,7 @@ Documentation = "https://betterspread.readthedocs.io"
 dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
+    "pytest-cov>=5.0.0",
 ]
 docs = [
     "sphinx>=8.0.0",

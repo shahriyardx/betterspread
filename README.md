@@ -1,5 +1,9 @@
 # betterspread
 
+[![Tests](https://github.com/shahriyardx/betterspread/actions/workflows/test.yml/badge.svg)](https://github.com/shahriyardx/betterspread/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/shahriyardx/betterspread/graph/badge.svg)](https://codecov.io/gh/shahriyardx/betterspread)
+[![PyPI version](https://img.shields.io/pypi/v/betterspread.svg)](https://pypi.org/project/betterspread/)
+
 An async Python wrapper around [gspread](https://github.com/burnash/gspread) that gives every cell and row first-class async methods — read, write, clear, style, and delete without ever leaving your `async`/`await` flow.
 
 ---
